@@ -1,0 +1,41 @@
+- hosts: all
+  tasks:
+     - name: Docker Repository Configuration
+       yum_repository:
+          name: docker
+          description: docker Repo
+          baseurl: https://download.docker.com/linux/centos/7/x86_64/stable
+          gpgcheck: no
+
+     - name: installing docker
+       command: "yum install docker-ce --nobest -y"
+
+     - name : Start docker service
+       service:
+           name: "docker"
+           state: started
+           enabled: yes
+      
+     - name: installing Python library for docker
+       command: "pip3 install docker"
+
+     - name: Creating webpage folder 
+       file:
+            path: /webpages
+            state: directory
+     - name: Copying html file used for webserver
+       copy:
+            src: "jayant.html"
+            dest: "/webpages/"
+
+     - name: Creating container using httpd Image 
+       docker_container:
+            name: Mywebserver
+            image: httpd
+            state: started
+            exposed_ports: "80"
+            ports: "1999:80"
+            volumes:
+            -  /webpages:/usr/local/apache2/htdocs/
+            
+       
